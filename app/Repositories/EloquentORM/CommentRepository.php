@@ -14,8 +14,18 @@ class CommentRepository extends BaseRepository implements CommentRepositoryInter
         parent::__construct(new Comment());
     }
 
-    public function findByUserId(int|string $userId): array
+    public function findAllWithAuthorPaginate(int|string $userId, int $limit = 15, array $fields = ['*']): array
     {
-        return $this->model->where('user_id', $userId)->get()->toArray();
+        return $this->model->select($fields)->with('author')->paginate($limit)->toArray();
+    }
+
+    public function findByUserId(int|string $userId, array $fields = ['*']): array
+    {
+        return $this->model->select($fields)->where('user_id', $userId)->get()->toArray();
+    }
+
+    public function findByUserIdPaginate(int|string $userId, int $limit = 15, array $fields = ['*']): array
+    {
+        return $this->model->select($fields)->where('user_id', $userId)->paginate($limit)->toArray();
     }
 }

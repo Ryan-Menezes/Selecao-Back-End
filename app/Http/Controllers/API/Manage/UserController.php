@@ -7,6 +7,7 @@ use App\Http\Requests\User\UserStoreRequest;
 use App\Http\Requests\User\UserUpdateRequest;
 use App\Models\User;
 use App\Services\UserService;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
@@ -14,11 +15,13 @@ class UserController extends Controller
     public function __construct(protected UserService $service)
     {}
 
-    public function index()
+    public function index(Request $request)
     {
-        $users = $this->service->findAll();
+        $limit = $request->get('limit', 15);
 
-        return $this->json($users);
+        $users = $this->service->findAllPaginate($limit);
+
+        return $this->json($users, wrapper: false);
     }
 
     public function store(UserStoreRequest $request)
@@ -39,6 +42,8 @@ class UserController extends Controller
         $data = $request->validated();
 
         $this->service->update($user->id, $data);
+
+        $user = $user->fresh();
 
         return $this->json($user->toArray());
     }

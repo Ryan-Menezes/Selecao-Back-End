@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API\Manage;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\AuthLoginRequest;
+use App\Http\Requests\Auth\AuthRegisterRequest;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,13 +15,8 @@ class AuthController extends Controller
         private UserService $userService
     ) {}
 
-    public function login(Request $request)
+    public function login(AuthLoginRequest $request)
     {
-        $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
-
         $token = $this->userService->login($request->email, $request->password);
 
         if (!$token) {
@@ -38,24 +35,13 @@ class AuthController extends Controller
         return $this->success('Logged out successfully');
     }
 
-    public function register(Request $request)
+    public function register(AuthRegisterRequest $request)
     {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:191'],
-            'email' => ['required', 'email', 'string', 'max:191', 'unique:users'],
-            'password' => ['required', 'string', 'min:6', 'max:191'],
-        ]);
+        $data = $request->validated();
 
         $user = $this->userService->create($data);
         $token = $this->userService->createTokenFor($user['id']);
 
         return $this->json(['user' => $user, 'token' => $token], wrapper: false);
-    }
-
-    public function me(Request $request)
-    {
-        $user = $request->user()->toArray();
-
-        return $this->json($user);
     }
 }

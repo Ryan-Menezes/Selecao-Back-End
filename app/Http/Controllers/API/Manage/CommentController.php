@@ -17,15 +17,16 @@ class CommentController extends Controller
 
     public function index(Request $request)
     {
+        $limit = $request->get('limit', 15);
         $user = $request->user();
 
         if ($user->is_admin) {
-            $comments = $this->service->findAll();
+            $comments = $this->service->findAllPaginate($limit);
         } else {
-            $comments = $this->service->findByUserId($user->id);
+            $comments = $this->service->findByUserIdPaginate($user->id, $limit);
         }
 
-        return $this->json($comments);
+        return $this->json($comments, wrapper: false);
     }
 
     public function store(CommentStoreRequest $request)
@@ -48,6 +49,8 @@ class CommentController extends Controller
         $data = $request->validated();
 
         $this->service->update($comment->id, $data);
+
+        $comment = $comment->fresh();
 
         return $this->json($comment->toArray());
     }
