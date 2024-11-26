@@ -42,6 +42,6 @@ class AuthController extends Controller
         $user = $this->userService->create($data);
         $token = $this->userService->createTokenFor($user['id']);
 
-        return $this->json(['user' => $user, 'token' => $token], wrapper: false);
+        return $this->json(['user' => $user, 'token' => $token], Response::HTTP_CREATED, false);
     }
 }

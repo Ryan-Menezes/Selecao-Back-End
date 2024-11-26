@@ -12,14 +12,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
-    public function __construct(protected UserService $service)
+    public function __construct(protected UserService $userService)
     {}
 
     public function index(Request $request)
     {
         $limit = $request->get('limit', 15);
 
-        $users = $this->service->findAllPaginate($limit);
+        $users = $this->userService->findAllPaginate($limit);
 
         return $this->json($users, wrapper: false);
     }
@@ -27,7 +27,7 @@ class UserController extends Controller
     public function store(UserStoreRequest $request)
     {
         $data = $request->validated();
-        $user = $this->service->create($data);
+        $user = $this->userService->create($data);
 
         return $this->json($user, Response::HTTP_CREATED);
     }
@@ -41,7 +41,7 @@ class UserController extends Controller
     {
         $data = $request->validated();
 
-        $this->service->update($user->id, $data);
+        $this->userService->update($user->id, $data);
 
         $user = $user->fresh();
 
@@ -50,7 +50,7 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        $this->service->delete($user->id);
+        $this->userService->delete($user->id);
 
         return $this->success('User deleted successfully');
     }

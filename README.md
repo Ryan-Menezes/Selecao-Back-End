@@ -33,67 +33,47 @@ A empresa solicitou o desenvolvimento de um sistema de comentários para um novo
 
 # Solução
 
+Na pasta /docs tem um arquivo que pode ser importado pelo insomnia, onde tem todos os endpoints para serem testados
+
 #### Obrigatórios:
 - O sistema deverá gerenciar os usuários, permitindo-os se cadastrar e editar seu cadastro:<br />
-Isso foi implementado nos endpoints [POST] /api/manage/register e [PUT] /api/manage/me
-  
+Isso foi implementado nos endpoints [POST] /api/manage/register e [PUT] /api/manage/me<br />
+Utilizei do laravel ORM em conjunto com os meus repositórios para realizar essa terefa<br />
+Basta verificar os arquivos: app/Repositories/EloquentORM/UserRepository.php, routes/api.php e app/Http/Controllers/API/Manage/ProfileController.php
+
 - O sistema poderá autenticar o usuário através do e-mail e senha do usuário e, nas outras requisições, utilizar apenas um token de identificação:<br />
-O login foi implementado no endpoint [POST] /api/manage/login, ao inves de usar a autenticação JWT, optei por usar o Laravel Sanctum
+O login foi implementado no endpoint [POST] /api/manage/login, ao inves de usar a autenticação JWT, optei por usar o Laravel Sanctum<br />
+Basta verificar os arquivos: app/Repositories/EloquentORM/UserRepository.php, routes/api.php e app/Http/Controllers/API/Manage/AuthController.php
   
 - O sistema deverá retornar comentários a todos que o acessarem, porém deverá permitir inserir comentários apenas a usuários autenticados:<br />
 Para obter todos os comentários sem precisar estar logado, basta acessar esse endpoint: [GET] /api, para inserir novos comentários use esse endpoint usando seu token de acesso: [POST] /api/manage/comments
   
 - O sistema deverá retornar qual é o autor do comentário e dia e horário da postagem:<br />
-No endpoint [GET] /api está sendo apresentado essas informações
+No endpoint [GET] /api está sendo apresentado essas informações, utilizei do poder do ORM do laravel para buscar o autor do comentário<br />
+Basta verificar os arquivos: app/Repositories/EloquentORM/CommentRepository.php, routes/api.php, app/Http/Controllers/API/HomeController.php e app/Models/Comment.php
 
 #### Desejáveis:
 - O sistema deverá permitir o usuário editar os próprios comentários (exibindo a data de criação do comentário e data da última edição):<br />
-O comentário pode ser editado pelo endpoint [PUT] /api/manage/comments/{id}
+O comentário pode ser editado pelo endpoint [PUT] /api/manage/comments/{id}<br />
+Utilizei do laravel ORM em conjunto com os meus repositórios para realizar a terefa de edição de um comentário<br />
+Basta verificar os arquivos: app/Repositories/EloquentORM/CommentRepository.php, routes/api.php e app/Http/Controllers/API/Manage/CommentController.php
 
 - O sistema deverá possuir histórico de edições do comentário:<br />
+O histórico dos comentários pode ser visto pelo endpoint [GET] /api/manage/comments/{id}/historics.<br />
+Para criar o histórico utilizei dos observers do laravel para identificar qualquer alteração no comentário e inseri esse histórico em uma nova tabela no banco de dados.<br />
+Basta verificar nos arquivos: database/migrations/2024_11_26_125948_create_comment_historic_table.php, routes/api.php, app/Repositories/EloquentORM/CommentHistoricRepository.php, app/Observers/CommentObserver.php, app/Providers/AppServiceProvider.php e app/Http/Controllers/API/Manage/CommentController.php
 
 - O sistema deverá permitir o usuário excluir os próprios comentários:<br />
-O comentário pode ser deletado pelo endpoint [DELETE] /api/manage/comments/{id}
+O comentário pode ser deletado pelo endpoint [DELETE] /api/manage/comments/{id}<br />
+Utilizei do laravel ORM em conjunto com os meus repositórios para realizar a terefa de exclusão de um comentário<br />
+Basta verificar os arquivos: app/Repositories/EloquentORM/CommentRepository.php, routes/api.php e app/Http/Controllers/API/Manage/CommentController.php
 
 - O sistema deverá possuir um usuário administrador que pode excluir todos os comentários:<br />
-Adicionei um atributo do tipo boolean chamado is_admin na tabela de usuários, com esse atributo consigo ter o controle de nível de acesso de cada usuário, em conjunto com esse atributo utilizo das policies do Laravel para fazer esse controle.
+Adicionei um atributo do tipo boolean chamado is_admin na tabela de usuários, com esse atributo consigo ter o controle de nível de acesso de cada usuário, em conjunto com esse atributo utilizo das policies do Laravel para fazer esse controle.<br />
 Basta verificar nos arquivos: database/migrations/2014_10_12_000000_create_users_table.php, routes/api.php, app/Policies/* e app/Providers/AuthServiceProvider.php
 
 - O sistema deverá criptografar a senha do usuário:<br />
-Estou usando a classe Illuminate\Support\Facades\Hash para realizar a criptografia da senha do usuário no repositório app/Repositories/EloquentORM/UserRepository.php
+Estou usando a classe Illuminate\Support\Facades\Hash para realizar a criptografia da senha do usuário no serviço app/Services/UserService.php
 
 - Implementação de testes automatizados utilizando phpunit:<br />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Criei testes de integração que estão na pasta tests/Feature

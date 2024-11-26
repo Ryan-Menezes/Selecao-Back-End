@@ -6,14 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Comment\CommentStoreRequest;
 use App\Http\Requests\Comment\CommentUpdateRequest;
 use App\Models\Comment;
+use App\Services\CommentHistoricService;
 use App\Services\CommentService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class CommentController extends Controller
 {
-    public function __construct(protected CommentService $service)
-    {}
+    public function __construct(
+        protected CommentService $commentService,
+        protected CommentHistoricService $commentHistoricService,
+    ) {}
 
     public function index(Request $request)
     {
@@ -21,9 +24,9 @@ class CommentController extends Controller
         $user = $request->user();
 
         if ($user->is_admin) {
-            $comments = $this->service->findAllPaginate($limit);
+            $comments = $this->commentService->findAllPaginate($limit);
         } else {
-            $comments = $this->service->findByUserIdPaginate($user->id, $limit);
+            $comments = $this->commentService->findByUserIdPaginate($user->id, $limit);
         }
 
         return $this->json($comments, wrapper: false);
@@ -34,7 +37,7 @@ class CommentController extends Controller
         $data = $request->validated();
         $data['user_id'] = $request->user()->id;
 
-        $comment = $this->service->create($data);
+        $comment = $this->commentService->create($data);
 
         return $this->json($comment, Response::HTTP_CREATED);
     }
@@ -48,7 +51,7 @@ class CommentController extends Controller
     {
         $data = $request->validated();
 
-        $this->service->update($comment->id, $data);
+        $this->commentService->update($comment->id, $data);
 
         $comment = $comment->fresh();
 
@@ -57,8 +60,17 @@ class CommentController extends Controller
 
     public function destroy(Comment $comment)
     {
-        $this->service->delete($comment->id);
+        $this->commentService->delete($comment->id);
 
         return $this->success('Comment deleted successfully');
+    }
+
+    public function historics(Request $request, Comment $comment)
+    {
+        $limit = $request->get('limit', 15);
+
+        $historics = $this->commentHistoricService->findByCommentIdPaginate($comment->id, $limit);
+
+        return $this->json($historics, wrapper: false);
     }
 }

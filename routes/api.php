@@ -6,6 +6,7 @@ use App\Http\Controllers\API\Manage\CommentController;
 use App\Http\Controllers\API\Manage\ProfileController;
 use App\Http\Controllers\API\Manage\UserController;
 use App\Models\Comment;
+use App\Models\CommentHistoric;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -70,6 +71,10 @@ Route::group([
             Route::delete('/{comment}', [CommentController::class, 'destroy'])
                 ->name('api.manage.comments.destroy')
                 ->can('delete', 'comment');
+
+            Route::get('/{comment}/historics', [CommentController::class, 'historics'])
+                ->name('api.manage.comments.historics')
+                ->can('viewAny', CommentHistoric::class);
         });
     });
 });

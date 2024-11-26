@@ -25,7 +25,7 @@ class Controller extends BaseController
 
     protected function json(array $data, int $status = Response::HTTP_OK, bool $wrapper = true): JsonResponse
     {
-        if (!$wrapper) return response()->json($data);
+        if (!$wrapper) return response()->json($data, $status);
 
         return response()->json(['data' => $data], $status);
     }
